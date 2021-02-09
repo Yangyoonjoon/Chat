@@ -1,9 +1,10 @@
-from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QHeaderView, QTableWidgetItem
 from PyQt5.QtCore import Qt
 from PyQt5.uic import loadUi
 import sys
 import socket
 from server import Server
+import datetime
 
 class Form(QWidget):
     def __init__(self):
@@ -22,6 +23,13 @@ class Form(QWidget):
         # toggle 버튼으로 만들기
         self.btn_open.setCheckable(True)
 
+        # table widget 초기화
+        label = ('IP', 'PORT', 'Conn.Time')
+        self.tw.setColumnCount(len(label))
+        self.tw.setHorizontalHeaderLabels(label)
+        self.tw.setAlternatingRowColors(True)
+        self.tw.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
         # 서버 생성
         self.server = Server(self)
 
@@ -39,6 +47,24 @@ class Form(QWidget):
                 self.btn_open.setText('서버 열기')
         else:
             self.btn_open.setText('서버 열기')
+            self.server.closeServer()
+
+    def OnConnClient(self, ip, port):
+        row = self.tw.rowCount()
+        self.tw.setRowCount(row+1)
+        self.tw.setItem(row, 0, QTableWidgetItem(ip))
+        self.tw.setItem(row, 1, QTableWidgetItem(port))
+
+        t = datetime.datetime.now()
+        txt = t.strftime('%Y.%m.%d %H:%M:%S')
+        self.tw.setItem(row, 2, QTableWidgetItem(txt))
+
+
+    def OnDisconnClient(self, ip, port):
+        pass
+
+    def closeEvent(self, e):
+        self.server.closeServer()
 
 
 if __name__ == '__main__':
