@@ -61,10 +61,19 @@ class Form(QWidget):
 
 
     def OnDisconnClient(self, ip, port):
-        pass
+        row = self.tw.rowCount()
+        for i in range(row):
+            _ip = self.tw.item(i, 0).text()
+            _port = self.tw.item(i, 1).text()
+            if ip == _ip and port == _port:
+                self.tw.removeRow(i)
+                break
 
     def closeEvent(self, e):
         self.server.closeServer()
+
+    def OnRecv(self, txt):
+        self.lw.addItem(txt)
 
 
 if __name__ == '__main__':

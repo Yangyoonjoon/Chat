@@ -6,6 +6,7 @@ class Server(QObject):
 
     conn_signal = pyqtSignal(str, str)
     disconn_signal = pyqtSignal(str, str)
+    recv_signal = pyqtSignal(str)
 
     def __init__(self, w):
         super().__init__()
@@ -16,6 +17,7 @@ class Server(QObject):
         # 시그널
         self.conn_signal.connect(self.parent.OnConnClient)
         self.disconn_signal.connect(self.parent.OnDisconnClient)
+        self.recv_signal.connect(self.parent.OnRecv)
 
     def startServer(self, ip, port):
         # 소켓 생성 IPV4, TCP (연결 지향형)
@@ -36,11 +38,26 @@ class Server(QObject):
         return True
 
     def closeServer(self):
+        # listen 소켓 종료
         print('close server')
         self.run = False
         self.socket.close()
 
-    # sever listen 처리용
+        # 접속한 클라이언트 소켓도 종료
+        for c in self.clients:
+            c[0].close()
+
+    def closeClient(self, sock):
+        for n, c in enumerate(self.clients):
+            if c[0] == sock:
+                del(self.clients[n])
+                break
+
+    def broadcast(self, msg):
+        for c in self.clients:
+            c[0].send(msg)
+
+    # 서버 listen 처리용
     def threadListen(self, sock):
         print('listen start')
         sock.listen(5)
@@ -72,8 +89,11 @@ class Server(QObject):
                 if buf == b'':
                     break
 
-                print(buf)
-                print(buf.decode(encoding='utf-8'))
+                #print(buf)
+                txt = buf.decode(encoding='utf-8')
+                self.recv_signal.emit(txt)
+                self.broadcast(buf)
 
         self.disconn_signal.emit(addr[0], str(addr[1]))
-        print('client disconnect', addr)
+        print('disconnect client', addr)
+        self.closeClient(client)
