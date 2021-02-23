@@ -35,6 +35,7 @@ class Form(QWidget):
 
         # 시그널
         self.btn_open.clicked.connect(self.OnOpen)
+        self.btn_send.clicked.connect(self.OnSend)
 
     def OnOpen(self):
         if self.btn_open.isChecked():
@@ -74,6 +75,11 @@ class Form(QWidget):
 
     def OnRecv(self, txt):
         self.lw.addItem(txt)
+
+    def OnSend(self):
+        txt = '[관리자] ' + self.msg.text()
+        self.lw.addItem(txt)
+        self.server.broadcast(txt.encode('utf-8'))
 
 
 if __name__ == '__main__':

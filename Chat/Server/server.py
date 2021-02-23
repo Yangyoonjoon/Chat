@@ -50,6 +50,7 @@ class Server(QObject):
     def closeClient(self, sock):
         for n, c in enumerate(self.clients):
             if c[0] == sock:
+                sock.close()
                 del(self.clients[n])
                 break
 
@@ -87,6 +88,7 @@ class Server(QObject):
                 break
             else:
                 if buf == b'':
+                    print('a')
                     break
 
                 #print(buf)

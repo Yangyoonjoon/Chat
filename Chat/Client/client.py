@@ -4,14 +4,15 @@ from threading import Thread
 
 class Client(QObject):
     recv_signal = pyqtSignal(str)
+    disconn_signal = pyqtSignal()
 
     def __init__(self, w):
         super().__init__()
         self.parent = w
-        self.bRun = True
 
         # 시그널
         self.recv_signal.connect(self.parent.OnRecv)
+        self.disconn_signal.connect(self.parent.OnDisconn)
 
     def connectServer(self, ip, port):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -21,6 +22,7 @@ class Client(QObject):
             print(e)
             return False
         else:
+            self.bRun = True
             self.t = Thread(target=self.clientThread, args=(self.socket,))
             self.t.start()
             return True
@@ -47,3 +49,5 @@ class Client(QObject):
                 #print(buf)
                 txt = buf.decode('utf-8')
                 self.recv_signal.emit(txt)
+
+        self.disconn_signal.emit()

@@ -19,6 +19,8 @@ class Form(QWidget):
         self.ip.setText(ip)
         self.port.setText('6666')
 
+        self.nick.setText('익명')
+
         # toggle 버튼으로 만들기
         self.btn_conn.setCheckable(True)
 
@@ -53,11 +55,17 @@ class Form(QWidget):
 
     def OnSend(self):
         txt = self.msg.text()
+        nick = self.nick.text()
+        txt = f'[{nick}] {txt}'
         self.client.sendMsg(txt)
         self.msg.setText('')
 
     def OnRecv(self, txt):
         self.lw.addItem(txt)
+
+    def OnDisconn(self):
+        self.btn_conn.setChecked(False)
+        self.btn_conn.setText('서버 접속')
 
     def closeEvent(self, e):
         self.client.disconnServer()
