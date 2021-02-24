@@ -78,8 +78,17 @@ class Form(QWidget):
         for i in range(row):
             _ip = self.tw.item(i, 0).text()
             _port = self.tw.item(i, 1).text()
+            _name = self.tw.item(i, 2).text()
             if ip == _ip and port == _port:
                 self.tw.removeRow(i)
+
+                t = datetime.datetime.now()
+                time = t.strftime('%H:%M:%S')
+
+                txt = f'{time} {_name}님이 퇴장하였습니다.'
+                self.lw.addItem(txt)
+                self.server.broadcast(txt.encode('utf-8'))
+
                 break
 
     def closeEvent(self, e):
@@ -89,7 +98,10 @@ class Form(QWidget):
         self.lw.addItem(txt)
 
     def OnSend(self):
-        txt = '[관리자] ' + self.msg.text()
+        t = datetime.datetime.now()
+        time = t.strftime('%H:%M:%S')
+
+        txt = f'{time} [관리자] {self.msg.text()}'
         self.lw.addItem(txt)
         self.server.broadcast(txt.encode('utf-8'))
         self.msg.setText('')
@@ -107,9 +119,13 @@ class Form(QWidget):
         self.tw.setItem(row-1, 2, QTableWidgetItem(name))
 
         # 입장 알림
-        txt = f'{name}님이 입장하였습니다.'
+        t = datetime.datetime.now()
+        time = t.strftime('%H:%M:%S')
+
+        txt = f'{time} {name}님이 입장하였습니다.'
         self.lw.addItem(txt)
         self.server.broadcast(txt.encode('utf-8'))
+
 
 
 if __name__ == '__main__':

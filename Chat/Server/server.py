@@ -1,6 +1,7 @@
 import socket
 from threading import Thread
 from PyQt5.QtCore import QObject, pyqtSignal
+import datetime
 
 class Server(QObject):
 
@@ -98,9 +99,13 @@ class Server(QObject):
                 if not idx == -1:
                     self.name_signal.emit(txt[:idx])
                 else:
-                    self.recv_signal.emit(txt)
-                    self.broadcast(buf)
+                    t = datetime.datetime.now()
+                    time = t.strftime('%H:%M:%S')
+                    txt = f'{time} {txt}'
 
-        self.disconn_signal.emit(addr[0], str(addr[1]))
+                    self.recv_signal.emit(txt)
+                    self.broadcast(txt.encode(encoding='utf-8'))
+
         print('disconnect client', addr)
         self.closeClient(client)
+        self.disconn_signal.emit(addr[0], str(addr[1]))

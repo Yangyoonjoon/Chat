@@ -26,6 +26,7 @@ class Client(QObject):
         else:
             # 이름인지 판별하는 문자열
             name += '[name]'
+            self.name = name
             self.socket.send(name.encode('utf-8'))
 
             self.bRun = True
