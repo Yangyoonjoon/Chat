@@ -5,6 +5,7 @@ from threading import Thread
 class Client(QObject):
     recv_signal = pyqtSignal(str)
     disconn_signal = pyqtSignal()
+    delete_signal = pyqtSignal(str)
 
     def __init__(self, w):
         super().__init__()
@@ -13,8 +14,9 @@ class Client(QObject):
         # 시그널
         self.recv_signal.connect(self.parent.OnRecv)
         self.disconn_signal.connect(self.parent.OnDisconn)
+        self.delete_signal.connect(self.parent.OnDelete)
 
-    def connectServer(self, ip, port):
+    def connectServer(self, ip, port, name):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.socket.connect( (ip, int(port)) )
@@ -22,6 +24,10 @@ class Client(QObject):
             print(e)
             return False
         else:
+            # 이름인지 판별하는 문자열
+            name += '[name]'
+            self.socket.send(name.encode('utf-8'))
+
             self.bRun = True
             self.t = Thread(target=self.clientThread, args=(self.socket,))
             self.t.start()
@@ -48,6 +54,10 @@ class Client(QObject):
                 
                 #print(buf)
                 txt = buf.decode('utf-8')
-                self.recv_signal.emit(txt)
+                idx = txt.find('[del]')
+                if not idx == -1:
+                    self.delete_signal.emit(txt[:idx])
+                else:
+                    self.recv_signal.emit(txt)
 
         self.disconn_signal.emit()

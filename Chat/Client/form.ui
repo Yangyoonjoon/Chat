@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>840</width>
-    <height>430</height>
+    <width>310</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -68,7 +68,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="nick"/>
+           <widget class="QLineEdit" name="name"/>
           </item>
          </layout>
         </item>
@@ -86,22 +86,11 @@
          <widget class="QLineEdit" name="msg"/>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QPushButton" name="btn_send">
-            <property name="text">
-             <string>보내기</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btn_del">
-            <property name="text">
-             <string>지우기</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="QPushButton" name="btn_send">
+          <property name="text">
+           <string>보내기</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

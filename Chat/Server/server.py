@@ -7,6 +7,7 @@ class Server(QObject):
     conn_signal = pyqtSignal(str, str)
     disconn_signal = pyqtSignal(str, str)
     recv_signal = pyqtSignal(str)
+    name_signal = pyqtSignal(str)
 
     def __init__(self, w):
         super().__init__()
@@ -18,6 +19,7 @@ class Server(QObject):
         self.conn_signal.connect(self.parent.OnConnClient)
         self.disconn_signal.connect(self.parent.OnDisconnClient)
         self.recv_signal.connect(self.parent.OnRecv)
+        self.name_signal.connect(self.parent.SetName)
 
     def startServer(self, ip, port):
         # 소켓 생성 IPV4, TCP (연결 지향형)
@@ -88,13 +90,16 @@ class Server(QObject):
                 break
             else:
                 if buf == b'':
-                    print('a')
                     break
 
                 #print(buf)
                 txt = buf.decode(encoding='utf-8')
-                self.recv_signal.emit(txt)
-                self.broadcast(buf)
+                idx = txt.find('[name]')
+                if not idx == -1:
+                    self.name_signal.emit(txt[:idx])
+                else:
+                    self.recv_signal.emit(txt)
+                    self.broadcast(buf)
 
         self.disconn_signal.emit(addr[0], str(addr[1]))
         print('disconnect client', addr)
