@@ -22,7 +22,7 @@ class Server(QObject):
         self.recv_signal.connect(self.parent.OnRecv)
         self.name_signal.connect(self.parent.SetName)
 
-    def startServer(self, ip, port):
+    def openServer(self, ip, port):
         # 소켓 생성 IPV4, TCP (연결 지향형)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 

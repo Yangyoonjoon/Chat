@@ -26,7 +26,7 @@ class Form(QWidget):
         self.btn_open.setCheckable(True)
 
         # table widget 초기화
-        label = ('IP', 'PORT', 'NAME', 'Conn.Time')
+        label = ('IP', 'PORT', 'Conn.Time', 'NAME')
         self.tw.setColumnCount(len(label))
         self.tw.setHorizontalHeaderLabels(label)
         self.tw.setAlternatingRowColors(True)
@@ -39,6 +39,7 @@ class Form(QWidget):
         self.btn_open.clicked.connect(self.OnOpen)
         self.btn_send.clicked.connect(self.OnSend)
         self.btn_del.clicked.connect(self.OnDelete)
+        self.btn_delall.clicked.connect(self.OnDeleteAll)
 
         # 전역 시그널 처리
         QApplication.instance().installEventFilter(self)
@@ -55,7 +56,7 @@ class Form(QWidget):
             ip = self.ip.text()
             port = self.port.text()
 
-            if not self.server.startServer(ip, port):
+            if not self.server.openServer(ip, port):
                 self.btn_open.setChecked(False)
                 self.btn_open.setText('서버 열기')
         else:
@@ -70,7 +71,7 @@ class Form(QWidget):
 
         t = datetime.datetime.now()
         txt = t.strftime('%Y.%m.%d %H:%M:%S')
-        self.tw.setItem(row, 3, QTableWidgetItem(txt))
+        self.tw.setItem(row, 2, QTableWidgetItem(txt))
 
 
     def OnDisconnClient(self, ip, port):
@@ -78,15 +79,19 @@ class Form(QWidget):
         for i in range(row):
             _ip = self.tw.item(i, 0).text()
             _port = self.tw.item(i, 1).text()
-            _name = self.tw.item(i, 2).text()
+            _name = self.tw.item(i, 3).text()
             if ip == _ip and port == _port:
                 self.tw.removeRow(i)
 
                 t = datetime.datetime.now()
                 time = t.strftime('%H:%M:%S')
-
                 txt = f'{time} {_name}님이 퇴장하였습니다.'
+
                 self.lw.addItem(txt)
+                scrollBar = self.lw.verticalScrollBar()
+                if scrollBar.value() == scrollBar.maximum():
+                    self.lw.scrollToBottom()
+
                 self.server.broadcast(txt.encode('utf-8'))
 
                 break
@@ -96,13 +101,20 @@ class Form(QWidget):
 
     def OnRecv(self, txt):
         self.lw.addItem(txt)
+        scrollBar = self.lw.verticalScrollBar()
+        if scrollBar.value() == scrollBar.maximum():
+            self.lw.scrollToBottom()
 
     def OnSend(self):
         t = datetime.datetime.now()
         time = t.strftime('%H:%M:%S')
-
         txt = f'{time} [관리자] {self.msg.text()}'
+
         self.lw.addItem(txt)
+        scrollBar = self.lw.verticalScrollBar()
+        if scrollBar.value() == scrollBar.maximum():
+            self.lw.scrollToBottom()
+
         self.server.broadcast(txt.encode('utf-8'))
         self.msg.setText('')
 
@@ -114,16 +126,29 @@ class Form(QWidget):
             self.lw.takeItem(row)
             self.server.broadcast(txt.encode('utf-8'))
 
+    def OnDeleteAll(self):
+        cnt = self.lw.count()
+        for i in range(cnt):
+            self.lw.takeItem(0)
+        
+        # 모두 삭제할지 판별하는 문자열
+        txt = '[delall]'
+        self.server.broadcast(txt.encode('utf-8'))
+
     def SetName(self, name):
         row = self.tw.rowCount()
-        self.tw.setItem(row-1, 2, QTableWidgetItem(name))
+        self.tw.setItem(row-1, 3, QTableWidgetItem(name))
 
         # 입장 알림
         t = datetime.datetime.now()
         time = t.strftime('%H:%M:%S')
-
         txt = f'{time} {name}님이 입장하였습니다.'
+
         self.lw.addItem(txt)
+        scrollBar = self.lw.verticalScrollBar()
+        if scrollBar.value() == scrollBar.maximum():
+            self.lw.scrollToBottom()
+
         self.server.broadcast(txt.encode('utf-8'))
 
 

@@ -6,6 +6,7 @@ class Client(QObject):
     recv_signal = pyqtSignal(str)
     disconn_signal = pyqtSignal()
     delete_signal = pyqtSignal(str)
+    deleteAll_signal = pyqtSignal()
 
     def __init__(self, w):
         super().__init__()
@@ -15,6 +16,7 @@ class Client(QObject):
         self.recv_signal.connect(self.parent.OnRecv)
         self.disconn_signal.connect(self.parent.OnDisconn)
         self.delete_signal.connect(self.parent.OnDelete)
+        self.deleteAll_signal.connect(self.parent.OnDeleteAll)
 
     def connectServer(self, ip, port, name):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -56,8 +58,11 @@ class Client(QObject):
                 #print(buf)
                 txt = buf.decode('utf-8')
                 idx = txt.find('[del]')
+
                 if not idx == -1:
                     self.delete_signal.emit(txt[:idx])
+                elif not txt.find('[delall]') == -1:
+                    self.deleteAll_signal.emit()
                 else:
                     self.recv_signal.emit(txt)
 

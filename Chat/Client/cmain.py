@@ -12,7 +12,7 @@ class Form(QWidget):
         super().__init__()
         loadUi('form.ui', self)
 
-        self.setWindowTitle('클라이언트')
+        self.setWindowTitle('양윤준톡')
         self.ip.setInputMask('000.000.000.000; ')
 
         # ip, port 초기값 설정
@@ -64,6 +64,7 @@ class Form(QWidget):
                 row = self.lw.count()
                 for r in range(row):
                     self.lw.takeItem(0)
+
                 self.btn_conn.setText('접속 해제')
                 self.btn_send.setDisabled(False)
                 self.msg.setDisabled(False)
@@ -93,8 +94,16 @@ class Form(QWidget):
                 self.lw.takeItem(r)
                 break
 
+    def OnDeleteAll(self):
+        cnt = self.lw.count()
+        for i in range(cnt):
+            self.lw.takeItem(0)
+
     def OnRecv(self, txt):
         self.lw.addItem(txt)
+        scrollBar = self.lw.verticalScrollBar()
+        if scrollBar.value() == scrollBar.maximum():
+            self.lw.scrollToBottom()
 
     def OnDisconn(self):
         self.btn_conn.setChecked(False)
