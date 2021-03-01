@@ -44,7 +44,8 @@ class Server(QObject):
         # listen 소켓 종료
         print('close server')
         self.run = False
-        self.socket.close()
+        if hasattr(self, 'socket'):
+            self.socket.close()
 
         # 접속한 클라이언트 소켓도 종료
         for c in self.clients:

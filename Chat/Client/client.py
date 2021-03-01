@@ -38,7 +38,8 @@ class Client(QObject):
 
     def disconnServer(self):
         self.bRun = False
-        self.socket.close()
+        if hasattr(self, 'socket'):
+            self.socket.close()
 
     def sendMsg(self, txt):
         if hasattr(self, 'socket'):
